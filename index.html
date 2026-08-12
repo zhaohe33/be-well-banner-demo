@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Be Well — Banner Demo</title>
+  <style>
+    :root {
+      --teal: #1db1a8;
+      --teal-dark: #007367;
+      --teal-mid: #00a99a;
+      --teal-header: #bae7e5;
+      --teal-soft: #e8f7f6;
+      --bg: #f2f2f3;
+      --text: #2c2c2e;
+      --muted: #8e8e93;
+      --white: #ffffff;
+      --phone-w: 390px;
+      --phone-h: 844px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 50% -10%, #d7f3f1 0%, transparent 55%),
+        linear-gradient(180deg, #eef6f6 0%, #dfe8e8 100%);
+      color: var(--text);
+      padding: 24px 16px;
+    }
+
+    .stage {
+      width: min(100%, var(--phone-w));
+    }
+
+    .label {
+      text-align: center;
+      margin-bottom: 14px;
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .phone {
+      width: 100%;
+      height: min(90vh, var(--phone-h));
+      background: var(--bg);
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 10px #1a1a1a,
+        0 0 0 12px #3a3a3a,
+        0 30px 60px rgba(0, 0, 0, 0.28);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .status {
+      height: 44px;
+      padding: 12px 22px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--teal-header);
+      font-size: 15px;
+      font-weight: 600;
+      color: #111;
+      flex-shrink: 0;
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .battery {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 700;
+      color: #c0392b;
+    }
+
+    .battery-box {
+      width: 22px;
+      height: 11px;
+      border: 1.5px solid #333;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .battery-box::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 2px;
+      width: 2px;
+      height: 5px;
+      background: #333;
+      border-radius: 0 1px 1px 0;
+    }
+
+    .battery-fill {
+      width: 18%;
+      height: 100%;
+      background: #c0392b;
+    }
+
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 88px;
+    }
+
+    .header {
+      background: var(--teal-header);
+      padding: 4px 18px 18px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      position: relative;
+    }
+
+    .logo-mark span {
+      position: absolute;
+      width: 18px;
+      height: 22px;
+      border: 2.5px solid #5cb85c;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    }
+
+    .logo-mark span:first-child { left: 2px; top: 4px; transform: rotate(-25deg); border-color: #2aa89e; }
+    .logo-mark span:last-child { right: 2px; top: 4px; transform: rotate(25deg); border-color: #6ec06a; }
+
+    .header-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: var(--teal-dark);
+    }
+
+    .pin-wrap { position: relative; }
+    .badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: var(--teal);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    .points {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0 2px;
+    }
+
+    .gauge {
+      width: 210px;
+      height: 118px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .gauge-arc {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 210px;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 210deg, var(--teal-dark) 0 78deg, rgba(255,255,255,0.45) 78deg 300deg, transparent 300deg);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px));
+    }
+
+    .value-pill {
+      position: relative;
+      z-index: 1;
+      background: var(--teal-dark);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 2px;
+    }
+
+    .points-num {
+      position: relative;
+      z-index: 1;
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--teal-dark);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .points-label {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--teal-dark);
+      margin-top: 2px;
+    }
+
+    /* Banner carousel */
+    .banners {
+      background: var(--bg);
+      padding: 14px 0 8px;
+    }
+
+    .banner-track {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 16px 10px;
+      scrollbar-width: none;
+    }
+
+    .banner-track::-webkit-scrollbar { display: none; }
+
+    .banner-card {
+      flex: 0 0 86%;
+      scroll-snap-align: start;
+      height: 148px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 3px solid var(--teal);
+      background: white;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+      position: relative;
+    }
+
+    .banner-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .banner-card[data-id="0157"] img { object-fit: contain; background: #fff; }
+
+    /* Third slide: 0161 + 0158 stacked, scroll vertically */
+    .banner-card.vertical-stack {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .vertical-track {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    }
+
+    .vertical-track::-webkit-scrollbar { display: none; }
+
+    .vertical-panel {
+      flex: 0 0 100%;
+      height: 100%;
+      min-height: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+    }
+
+    .vertical-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+
+    .vertical-panel[data-id="0161"] img { object-position: center 40%; }
+
+    .v-hint {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      background: rgba(0, 115, 103, 0.85);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding-bottom: 4px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #c9d4d3;
+      transition: background 0.2s, width 0.2s;
+    }
+
+    .dot.active {
+      background: var(--teal);
+      width: 18px;
+      border-radius: 999px;
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 0 16px 6px;
+    }
+
+    /* Offers */
+    .offers {
+      padding: 8px 12px 24px;
+    }
+
+    .offers h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 0.04em;
+      margin: 4px 4px 10px;
+    }
+
+    .offer {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f7f7f7;
+      border: 1px solid #eee;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .offer-title {
+      color: var(--teal-mid);
+      font-weight: 700;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .offer-desc {
+      font-size: 12px;
+      color: #444;
+      margin-top: 2px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .offer-ends {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .offer-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--teal);
+      background: white;
+      color: var(--teal);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .btn-circle.loaded {
+      background: var(--teal);
+      color: white;
+      border-color: var(--teal);
+      font-size: 16px;
+    }
+
+    .rexall-mark {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .rexall-mark i {
+      width: 12px;
+      height: 12px;
+      background: var(--teal);
+      color: white;
+      border-radius: 2px;
+      font-style: normal;
+      font-size: 9px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .load-all {
+      position: sticky;
+      bottom: 12px;
+      margin: 16px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      background: #c9ebe8;
+      color: var(--teal-dark);
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0, 115, 103, 0.18);
+      cursor: pointer;
+    }
+
+    .load-all .plus {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    /* Tab bar */
+    .tabbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 72px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #e5e5ea;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 0 14px;
+      z-index: 5;
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #666;
+      font-size: 11px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .tab.active { color: var(--teal-dark); font-weight: 650; }
+    .tab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    @media (max-width: 430px) {
+      body { padding: 0; background: var(--bg); }
+      .label { display: none; }
+      .phone {
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .stage { width: 100%; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <p class="label">Be Well banner demo · horizontal manual · vertical auto every 5s</p>
+    <div class="phone" role="application" aria-label="Be Well app demo">
+      <div class="status">
+        <span>1:00</span>
+        <div class="status-icons">
+          <span aria-hidden="true">▮▮▮</span>
+          <span aria-hidden="true">☁</span>
+          <span class="battery">
+            10
+            <span class="battery-box"><span class="battery-fill"></span></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <header class="header">
+          <div class="top-row">
+            <div class="logo-mark" aria-label="Be Well"><span></span><span></span></div>
+            <div class="header-actions">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="6" width="20" height="13" rx="2"/>
+                <path d="M2 10h20"/>
+              </svg>
+              <div class="pin-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 22s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/>
+                  <circle cx="12" cy="10" r="2.2"/>
+                </svg>
+                <span class="badge">2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="points">
+            <div class="gauge">
+              <div class="gauge-arc" aria-hidden="true"></div>
+              <div class="value-pill">$120 value</div>
+              <div class="points-num">306,040</div>
+              <div class="points-label">Be Well points</div>
+            </div>
+          </div>
+        </header>
+
+        <section class="banners" aria-label="Promotional banners">
+          <div class="banner-track" id="bannerTrack">
+            <article class="banner-card" data-id="0157" aria-label="Skin health brands">
+              <img src="banners/banner_0157.png" alt="Aveeno, L'Oréal Paris, Neutrogena, Olay, CeraVe, La Roche-Posay" />
+            </article>
+            <article class="banner-card" data-id="0160" aria-label="Text JOIN for exclusive offers">
+              <img src="banners/banner_0160.png" alt="Get exclusive offers and alerts via text. Text JOIN to 239-355" />
+            </article>
+            <article class="banner-card vertical-stack" data-id="0161-0158" aria-label="Stack offers and Sun care — swipe up or down">
+              <div class="vertical-track" id="verticalTrack">
+                <div class="vertical-panel" data-id="0161">
+                  <img src="banners/banner_0161.png" alt="Stack loaded personalized digital offers, weekly e-flyer offers, and in-store promotions" />
+                  <span class="v-hint">swipe ↑ sun care</span>
+                </div>
+                <div class="vertical-panel" data-id="0158">
+                  <img src="banners/banner_0158.png" alt="Spend $30 on Sun Care get 10,000 BeWell Points at Well.ca" />
+                  <span class="v-hint">swipe ↓ stack offers</span>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <p class="hint">1 · Skin brands &nbsp;→&nbsp; 2 · SMS JOIN &nbsp;→&nbsp; 3 · Stack + Sun care <em>(vertical auto)</em></p>
+        </section>
+
+        <section class="offers">
+          <h2>REXALL OFFERS (11)</h2>
+
+          <article class="offer">
+            <div class="thumb"><img src="banners/banner_0157.png" alt="" /></div>
+            <div>
+              <div class="offer-title">Exclusive Skin and...</div>
+              <div class="offer-desc">Get $40 in points <strong>when you load and spend $1...</strong></div>
+              <div class="offer-ends">Ends Aug 21, 2026</div>
+            </div>
+            <div class="offer-action">
+              <div class="btn-circle loaded" aria-label="Loaded">✓</div>
+              <div class="rexall-mark"><i>+</i> Rexall</div>
+            </div>
+          </article>
+
+          <article class="offer">
+            <div class="thumb" style="background:#5b2d8e; display:grid; place-items:center; color:#fff; font-size:9px; font-weight:700; text-align:center; padding:4px; line-height:1.2;">SHOP MORE<br/>EARN MORE</div>
+            <div>
+              <div class="offer-title">Get $10 back in pts</div>
+              <div class="offer-desc">Get $10 in points <strong>when you load and spend $40...</strong></div>
+              <div class="offer-ends">Ends Aug 21, 2026</div>
+            </div>
+            <div class="offer-action">
+              <div class="btn-circle loaded" aria-label="Loaded">✓</div>
+              <div class="rexall-mark"><i>+</i> Rexall</div>
+            </div>
+          </article>
+
+          <article class="offer">
+            <div class="thumb" style="background:#f7f3e8; display:grid; place-items:center; color:#c45c26; font-size:11px; font-weight:800;">BAND-AID</div>
+            <div>
+              <div class="offer-title">7,500 points</div>
+              <div class="offer-desc">Get 7,500 points <strong>when you load and buy 2...</strong></div>
+              <div class="offer-ends">Ends Aug 21, 2026</div>
+            </div>
+            <div class="offer-action">
+              <div class="btn-circle" aria-label="Load offer">+</div>
+              <div class="rexall-mark"><i>+</i> Rexall</div>
+            </div>
+          </article>
+
+          <button class="load-all" type="button">
+            <span class="plus">+</span>
+            Load all offers
+          </button>
+        </section>
+      </div>
+
+      <nav class="tabbar" aria-label="Main">
+        <button class="tab active" type="button">
+          <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg>
+          Home
+        </button>
+        <button class="tab" type="button">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg>
+          Health
+        </button>
+        <button class="tab" type="button">
+          <svg viewBox="0 0 24 24"><path d="M21 12a8.5 8.5 0 0 1-12.8 7.3L4 20l1-3.5A8.5 8.5 0 1 1 21 12z"/></svg>
+          Inbox
+        </button>
+        <button class="tab" type="button">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 19.5c1.8-3.2 4.2-4.5 7-4.5s5.2 1.3 7 4.5"/></svg>
+          Settings
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    const INTERVAL_MS = 5000;
+    const track = document.getElementById("bannerTrack");
+    const vTrack = document.getElementById("verticalTrack");
+    const cards = [...track.querySelectorAll(".banner-card")];
+    const vPanels = [...vTrack.querySelectorAll(".vertical-panel")];
+    const dotsWrap = document.getElementById("dots");
+
+    cards.forEach((_, i) => {
+      const d = document.createElement("span");
+      d.className = "dot" + (i === 0 ? " active" : "");
+      dotsWrap.appendChild(d);
+    });
+    const dots = [...dotsWrap.querySelectorAll(".dot")];
+
+    let timer = null;
+    let vIndex = 0;
+    let programmatic = false;
+    let interacting = false;
+
+    function cardGap() {
+      const style = getComputedStyle(track);
+      return parseFloat(style.columnGap || style.gap) || 12;
+    }
+
+    function horizontalIndex() {
+      const cardW = cards[0].offsetWidth + cardGap();
+      return Math.round(track.scrollLeft / cardW);
+    }
+
+    function updateDots() {
+      const h = horizontalIndex();
+      dots.forEach((d, i) => d.classList.toggle("active", i === h));
+    }
+
+    function goVertical(index, { smooth = true } = {}) {
+      vIndex = ((index % vPanels.length) + vPanels.length) % vPanels.length;
+      programmatic = true;
+      vTrack.scrollTo({
+        top: vIndex * vTrack.clientHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+      window.setTimeout(() => { programmatic = false; }, smooth ? 450 : 50);
+    }
+
+    function syncVerticalFromScroll() {
+      if (programmatic) return;
+      vIndex = Math.round(vTrack.scrollTop / Math.max(vTrack.clientHeight, 1));
+    }
+
+    function nextVertical() {
+      // Only autoplay when the third (vertical) banner is in view
+      if (horizontalIndex() !== 2) return;
+      goVertical(vIndex + 1);
+    }
+
+    function startAuto() {
+      stopAuto();
+      timer = window.setInterval(() => {
+        if (!interacting && !document.hidden) nextVertical();
+      }, INTERVAL_MS);
+    }
+
+    function stopAuto() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    function bumpAuto() {
+      startAuto();
+    }
+
+    function onInteractStart() {
+      interacting = true;
+      stopAuto();
+    }
+
+    function onInteractEnd() {
+      interacting = false;
+      syncVerticalFromScroll();
+      bumpAuto();
+    }
+
+    track.addEventListener("scroll", () => requestAnimationFrame(updateDots), { passive: true });
+    vTrack.addEventListener("scroll", () => requestAnimationFrame(syncVerticalFromScroll), { passive: true });
+
+    ["pointerdown", "touchstart", "wheel"].forEach((evt) => {
+      vTrack.addEventListener(evt, onInteractStart, { passive: true });
+    });
+    ["pointerup", "pointercancel", "touchend"].forEach((evt) => {
+      vTrack.addEventListener(evt, onInteractEnd, { passive: true });
+    });
+    vTrack.addEventListener("pointerleave", () => {
+      if (interacting) onInteractEnd();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopAuto();
+      else bumpAuto();
+    });
+
+    window.addEventListener("resize", () => {
+      goVertical(vIndex, { smooth: false });
+      updateDots();
+    });
+
+    updateDots();
+    goVertical(0, { smooth: false });
+    startAuto();
+  </script>
+</body>
+</html>
