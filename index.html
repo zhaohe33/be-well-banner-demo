@@ -248,6 +248,14 @@
       -webkit-overflow-scrolling: touch;
       padding: 0 16px 10px;
       scrollbar-width: none;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .banner-track.is-dragging,
+    .vertical-track.is-dragging {
+      cursor: grabbing;
+      scroll-snap-type: none;
     }
 
     .banner-track::-webkit-scrollbar { display: none; }
@@ -294,6 +302,8 @@
       scrollbar-width: none;
       overscroll-behavior: contain;
       touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
     }
 
     .vertical-track::-webkit-scrollbar { display: none; }
@@ -557,7 +567,7 @@
 </head>
 <body>
   <div class="stage">
-    <p class="label">Be Well banner demo · horizontal manual · vertical auto every 5s</p>
+    <p class="label">Be Well banner demo · click-drag (or trackpad) to swipe · vertical auto every 5s</p>
     <div class="phone" role="application" aria-label="Be Well app demo">
       <div class="status">
         <span>1:00</span>
@@ -746,7 +756,6 @@
     }
 
     function nextVertical() {
-      // Only autoplay when the third (vertical) banner is in view
       if (horizontalIndex() !== 2) return;
       goVertical(vIndex + 1);
     }
@@ -780,17 +789,79 @@
       bumpAuto();
     }
 
+    // Click-and-drag swipe for mouse / trackpad pointer
+    function enableDragScroll(el, axis) {
+      let dragging = false;
+      let startPos = 0;
+      let startScroll = 0;
+      let moved = false;
+
+      el.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") return; // native touch scroll is fine
+        if (e.button !== 0) return;
+        dragging = true;
+        moved = false;
+        startPos = axis === "x" ? e.clientX : e.clientY;
+        startScroll = axis === "x" ? el.scrollLeft : el.scrollTop;
+        el.classList.add("is-dragging");
+        el.setPointerCapture(e.pointerId);
+        onInteractStart();
+      });
+
+      el.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const pos = axis === "x" ? e.clientX : e.clientY;
+        const delta = pos - startPos;
+        if (Math.abs(delta) > 3) moved = true;
+        if (axis === "x") el.scrollLeft = startScroll - delta;
+        else el.scrollTop = startScroll - delta;
+      });
+
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove("is-dragging");
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+
+        // Snap to nearest card / panel after drag
+        if (axis === "x") {
+          const cardW = cards[0].offsetWidth + cardGap();
+          const index = Math.round(el.scrollLeft / cardW);
+          el.scrollTo({ left: index * cardW, behavior: "smooth" });
+          updateDots();
+        } else {
+          const h = el.clientHeight;
+          const index = Math.round(el.scrollTop / Math.max(h, 1));
+          goVertical(index);
+        }
+        onInteractEnd();
+      }
+
+      el.addEventListener("pointerup", endDrag);
+      el.addEventListener("pointercancel", endDrag);
+
+      // Prevent image drag ghost / accidental clicks after a swipe
+      el.addEventListener("dragstart", (e) => e.preventDefault());
+      el.addEventListener("click", (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = false;
+        }
+      }, true);
+    }
+
+    enableDragScroll(track, "x");
+    enableDragScroll(vTrack, "y");
+
     track.addEventListener("scroll", () => requestAnimationFrame(updateDots), { passive: true });
     vTrack.addEventListener("scroll", () => requestAnimationFrame(syncVerticalFromScroll), { passive: true });
 
-    ["pointerdown", "touchstart", "wheel"].forEach((evt) => {
+    ["touchstart", "wheel"].forEach((evt) => {
       vTrack.addEventListener(evt, onInteractStart, { passive: true });
     });
-    ["pointerup", "pointercancel", "touchend"].forEach((evt) => {
+    ["touchend"].forEach((evt) => {
       vTrack.addEventListener(evt, onInteractEnd, { passive: true });
-    });
-    vTrack.addEventListener("pointerleave", () => {
-      if (interacting) onInteractEnd();
     });
 
     document.addEventListener("visibilitychange", () => {
